@@ -1,13 +1,3 @@
-<template>
-  <div>
-    <h1>Speech Recognition</h1>
-    <p>Status: {{ status }}</p>
-    <button @click="startListening" :disabled="!isSupported">Start Listening</button>
-    <button @click="stopListening" :disabled="!isSupported">Stop Listening</button>
-    <p>Transcript: {{ transcript }}</p>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
@@ -54,3 +44,23 @@ function stopListening() {
   recognition.stop();
 }
 </script>
+
+<template>
+  <div>
+    <div class="content">
+      <h1>Speech Recognition</h1>
+      <p>Status: {{ status }}</p>
+      <button @click="startListening" :disabled="!isSupported">Start Listening</button>
+      <button @click="stopListening" :disabled="!isSupported">Stop Listening</button>
+      <p>Transcript: {{ transcript }}</p>
+    </div>
+  </div>
+</template>
+
+<style>
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+</style>
