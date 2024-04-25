@@ -4,6 +4,7 @@
     <p>Status: {{ status }}</p>
     <p v-if="transcriptionActive">Transcript: {{ transcript }}</p>
     <p v-else>Say "computer" to start recording.</p>
+    <audio v-if="transcriptionActive" src="/bell.mp3" autoplay></audio>
   </div>
 </template>
 
@@ -41,7 +42,7 @@ onMounted(() => {
 
       if (result.toLowerCase().includes(wakeWord.toLowerCase()) && !transcriptionActive.value) {
         transcriptionActive.value = true;
-        bell.play();
+        // bell.play();
         return;
       }
 
