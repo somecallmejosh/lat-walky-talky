@@ -3,7 +3,7 @@
     <h1>Speech Recognition</h1>
     <p>Status: {{ status }}</p>
     <p v-if="transcriptionActive">Transcript: {{ transcript }}</p>
-    <p v-else>No transcription active. Say "computer" to start.</p>
+    <p v-else>Say "computer" to start recording.</p>
   </div>
 </template>
 
