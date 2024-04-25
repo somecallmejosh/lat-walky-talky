@@ -1,66 +1,72 @@
+<template>
+  <div>
+    <h1>Speech Recognition</h1>
+    <p>Status: {{ status }}</p>
+    <p v-if="transcriptionActive">Transcript: {{ transcript }}</p>
+    <p v-else>No transcription active. Say "hello" to start.</p>
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const status = ref('Idle');
 const transcript = ref('');
 const isSupported = ref(true);
-
+const transcriptionActive = ref(false);
+const wakeWord = "computer";
+let bell = new Audio('/bell.mp3');
 let recognition;
 
 onMounted(() => {
+  console.log("Component mounted, setting up speech recognition.");
   if (window.SpeechRecognition || window.webkitSpeechRecognition) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
     recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.interimResults = false;
 
     recognition.onstart = () => {
+      console.log("Speech recognition started.");
       status.value = 'Listening...';
+      transcript.value = '';
     };
 
     recognition.onresult = event => {
+      console.log("Result received.");
       const current = event.resultIndex;
       const result = event.results[current][0].transcript;
-      if (event.results[current].isFinal) {
+      console.log("Heard:", result);
+
+      if (result.toLowerCase().includes(wakeWord.toLowerCase()) && !transcriptionActive.value) {
+        transcriptionActive.value = true;
+        bell.play();
+        return;
+      }
+
+      if (transcriptionActive.value) {
         transcript.value += result + ' ';
       }
     };
 
     recognition.onend = () => {
-      status.value = 'Stopped';
+      console.log("Speech recognition ended. Restarting...");
+      recognition.start(); // Restart recognition to continuously listen
     };
+
+    recognition.onerror = (event) => {
+      console.error('Recognition error:', event.error);
+    };
+
+    recognition.start();
   } else {
     console.error('Speech recognition is not supported in this browser.');
     isSupported.value = false;
   }
 });
 
-function startListening() {
-  recognition.start();
-  status.value = 'Listening...';
-}
-
-function stopListening() {
+onUnmounted(() => {
   recognition.stop();
-}
+});
 </script>
-
-<template>
-  <div>
-    <div class="content">
-      <h1>Speech Recognition</h1>
-      <p>Status: {{ status }}</p>
-      <button @click="startListening" :disabled="!isSupported">Start Listening</button>
-      <button @click="stopListening" :disabled="!isSupported">Stop Listening</button>
-      <p>Transcript: {{ transcript }}</p>
-    </div>
-  </div>
-</template>
-
-<style>
-
-.content {
-  position: relative;
-  z-index: 1;
-}
-</style>
