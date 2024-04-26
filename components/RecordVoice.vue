@@ -1,9 +1,10 @@
 <template>
   <div>
-    <h1>Recording</h1>
+    <h1>Recording Status: {{ status }}</h1>
     <button @click="startSpeechRecognition" :disabled="isRecording">Start</button>
     <button @click="stopSpeechRecognition" :disabled="!isRecording">Stop</button>
-    <div  v-if="transcript">
+
+    <div v-if="transcript">
     <h2>Transcript:</h2>
     <code>
       {{ transcript }}
@@ -16,12 +17,15 @@
   export default defineComponent ({
     data() {
       return {
-        recognition: null,
+        closeSound: new Audio('/close.mp3'),
         isRecording: false,
         openSound: new Audio('/ding.mp3'),
         openSoundPlayed: false,
-        closeSound: new Audio('/close.mp3'),
-        transcript: ''
+        recognition: null,
+        sleepWord: 'cancel',
+        status: 'Idle', // 'Listening...', 'Idle',
+        transcript: '',
+        wakeWord: 'computer'
       };
     },
     methods: {
@@ -35,14 +39,20 @@
         this.recognition.onresult = event => {
           const current = event.resultIndex;
           const result = event.results[current][0].transcript;
-          if (event.results[current].isFinal) {
-            if (this.openSoundPlayed == false) {
-              this.openSound.play();
-              this.openSoundPlayed = true;
-            }
+          if (result.toLowerCase().includes(this.wakeWord)) {
+            this.openSound.play();
+            this.openSoundPlayed = true;
+            this.status = 'Listening...';
+          }
 
+          if (result.toLowerCase().includes(this.sleepWord)) {
+            this.stopSpeechRecognition();
+          }
+
+          if (this.openSoundPlayed && event.results[current].isFinal) {
             this.transcript += result + ' ';
           }
+
         };
 
         this.recognition.onerror = event => {
@@ -59,13 +69,12 @@
       startSpeechRecognition() {
         this.initializeSpeechRecognition();
         this.recognition.start();
-        console.log('Speech Recognition Started');
         this.isRecording = true;
       },
-
       stopSpeechRecognition() {
         if (this.recognition) {
           this.recognition.stop();
+          this.status = 'Idle';
         }
       },
     }
