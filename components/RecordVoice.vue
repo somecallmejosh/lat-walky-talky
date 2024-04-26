@@ -19,9 +19,7 @@
     data() {
       return {
         audioPlayBackErrorMessage: 'Audio playback failed:',
-        closeSound: new Audio('/close.mp3'),
         isRecording: false,
-        openSound: new Audio('/ding.mp3'),
         openSoundPlayed: false,
         recognition: null,
         sleepWord: 'cancel',
@@ -41,6 +39,20 @@
       audioPlay() {
         this.openSoundPlayed = true;
       },
+      playCloseSound() {
+        const sound = new Audio('/close.mp3')
+        sound.play().catch(error => {
+          console.log('sup error')
+          console.error(this.audioPlayBackErrorMessage, error);
+        });
+      },
+      playOpenSound() {
+        const sound = new Audio('/ding.mp3')
+        sound.play().catch(error => {
+          console.log('sup error')
+          console.error(this.audioPlayBackErrorMessage, error);
+        });
+      },
       initializeSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
@@ -51,7 +63,7 @@
           const current = event.resultIndex;
           const result = event.results[current][0].transcript;
           if (result.toLowerCase().includes(this.wakeWord)) {
-            this.openSound.play();
+            this.playOpenSound();
             this.openSoundPlayed = true;
             this.status = 'Listening...';
           }
@@ -72,7 +84,7 @@
         this.recognition.onend = () => {
           console.log('Speech Recognition Stopped');
           this.isRecording = false;
-          this.closeSound.play();
+          this.playCloseSound();
           this.openSoundPlayed = false;
         };
       },

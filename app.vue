@@ -15,6 +15,26 @@
 
  button {
   margin-right: 0.5rem;
+  background-color: gold;
+  padding: 0.5rem 1rem;
+  border: gold 1px solid;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  letter-spacing: .4ch;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: goldenrod;
+  border: goldenrod 1px solid;
+  color: navajowhite;
+}
+
+button:disabled {
+  background-color: lightgray;
+  border: lightgray 1px solid;
+  color: gray;
+  pointer-events: none;
 }
 
 code {
