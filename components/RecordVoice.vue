@@ -1,17 +1,17 @@
 <template>
-  <div>
-    <h1>Recording Status: {{ status }}</h1>
-    <button @click="startSpeechRecognition" :disabled="isRecording">Start</button>
-    <button @click="stopSpeechRecognition" :disabled="!isRecording">Stop</button>
-    <audio ref="openAudioElement" playsinline src="/ding.mp3"></audio>
-    <audio ref="closeAudioElement" playsinline src="/close.mp3"></audio>
-    <div v-if="transcript">
-    <h2>Transcript:</h2>
-    <code>
-      {{ transcript }}
-    </code>
+  <client-only>
+    <div>
+      <h1>Recording Status: {{ status }}</h1>
+      <button @click="startSpeechRecognition" :disabled="isRecording">Start</button>
+      <button @click="stopSpeechRecognition" :disabled="!isRecording">Stop</button>
+      <div v-if="transcript">
+        <h2>Transcript:</h2>
+        <code>
+          {{ transcript }}
+        </code>
+      </div>
     </div>
-  </div>
+  </client-only>
 </template>
 
 <script>
@@ -30,6 +30,13 @@
         wakeWord: 'computer'
       };
     },
+    mounted() {
+      if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+        this.initializeSpeechRecognition();
+      } else {
+        console.error('Speech recognition is not supported in this browser.');
+      }
+    },
     methods: {
       audioPlay() {
         this.openSoundPlayed = true;
@@ -37,7 +44,6 @@
       initializeSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
-        this.recognition.lang = 'en-US';
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
 
@@ -45,11 +51,8 @@
           const current = event.resultIndex;
           const result = event.results[current][0].transcript;
           if (result.toLowerCase().includes(this.wakeWord)) {
-            this.$refs.openAudioElement.play().then(() => {
-              this.openSoundPlayed = true;
-            }).catch((error) => {
-              console.error(this.audioPlaybackErrorMessage, error);
-            });
+            this.openSound.play();
+            this.openSoundPlayed = true;
             this.status = 'Listening...';
           }
 
@@ -69,11 +72,7 @@
         this.recognition.onend = () => {
           console.log('Speech Recognition Stopped');
           this.isRecording = false;
-          this.$refs.closeAudioElement.play().then(() => {
-              this.openSoundPlayed = false;
-            }).catch((error) => {
-              console.error(this.audioPlaybackErrorMessage, error);
-            });
+          this.closeSound.play();
           this.openSoundPlayed = false;
         };
       },

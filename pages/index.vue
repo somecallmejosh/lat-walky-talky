@@ -1,5 +1,3 @@
 <template>
-  <client-only>
-    <record-voice />
-  </client-only>
+  <record-voice />
 </template>
