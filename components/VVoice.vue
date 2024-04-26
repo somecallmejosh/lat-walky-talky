@@ -42,7 +42,7 @@ onMounted(() => {
 
       if (result.toLowerCase().includes(wakeWord.toLowerCase()) && !transcriptionActive.value) {
         transcriptionActive.value = true;
-        // bell.play();
+        bell.play();
         return;
       }
 
