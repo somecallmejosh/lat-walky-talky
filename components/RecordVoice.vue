@@ -18,7 +18,8 @@
       return {
         recognition: null,
         isRecording: false,
-        openSound: new Audio('/open.mp3'),
+        openSound: new Audio('/ding.mp3'),
+        openSoundPlayed: false,
         closeSound: new Audio('/close.mp3'),
         transcript: ''
       };
@@ -34,10 +35,12 @@
         this.recognition.onresult = event => {
           const current = event.resultIndex;
           const result = event.results[current][0].transcript;
-          if (event.results[current][0].transcript.includes('COMPUTER')) {
-            this.openSound.play();
-          }
           if (event.results[current].isFinal) {
+            if (this.openSoundPlayed == false) {
+              this.openSound.play();
+              this.openSoundPlayed = true;
+            }
+
             this.transcript += result + ' ';
           }
         };
@@ -50,6 +53,7 @@
           console.log('Speech Recognition Stopped');
           this.isRecording = false;
           this.closeSound.play();
+          this.openSoundPlayed = false;
         };
       },
       startSpeechRecognition() {

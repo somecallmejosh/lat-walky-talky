@@ -10,10 +10,6 @@
 </template>
 <style>
  .wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  min-width: 100dvw;
   padding: 1rem;
  }
 
